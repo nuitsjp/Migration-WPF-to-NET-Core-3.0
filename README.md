@@ -1,9 +1,8 @@
 # はじめに
 
-本アンプルアプリは、CodeZine様にて記載させていただいた以下の記事のサンプルコードになります。
+本アンプルアプリは、以下のハンズオンのサンプルコードになります。
 
-* https://codezine.jp/article/detail/10727  
-* https://codezine.jp/article/detail/10761  
+* http://www.nuits.jp/entry/migration-hands-on-wpf-to-netcore3.0  
 
 本READMEには、サンプルアプリケーションの実行方法のみを記載しています。
 
@@ -11,25 +10,19 @@
 
 # 本アプリケーションの前提条件
 
-* Visual Studio 2017  
+* Visual Studio 2019 16.1
 * .NET Framework 4.7.1  
-* SPREAD for WPF 2.0J
+* .NET Core 3.0
+* SQL Server 2017 
 
 # 本アプリケーションの実行方法
 
 次の手順で環境構築を行い、実行します。
 
-1. SPREAD for WPFのインストール  
 1. SQL Server 2017をインストールし、サンプルDB AdventureWorksをセットアップする
 2. 本リポジトリをクローンもしくはダウンロードする  
 3. SQL Serverをセットアップする  
 4. ソリューションのスタートアップ設定を変更する
-
-## SPREAD for WPFのインストール
-
-本アプリケーションはSPREAD for WPFがインストールされている必要があります。以下のサイトから体験版を入手してインストールしましょう。
-
-[SPREAD for WPF 2.0J](https://www.grapecity.co.jp/developer/spread-wpf)
 
 ## SQL Server 2017をインストールし、サンプルDB AdventureWorksをセットアップする
 
