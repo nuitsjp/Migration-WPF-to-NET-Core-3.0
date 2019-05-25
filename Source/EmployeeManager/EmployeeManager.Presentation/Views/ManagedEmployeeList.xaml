@@ -7,7 +7,6 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:viewModels="clr-namespace:AdventureWorks.EmployeeManager.Presentation.ViewModels"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:behaviors="clr-namespace:AdventureWorks.EmployeeManager.Presentation.Views.Behaviors"
              xmlns:converters="clr-namespace:AdventureWorks.EmployeeManager.Presentation.Views.Converters"
              x:Class="AdventureWorks.EmployeeManager.Presentation.Views.ManagedEmployeeList"             
              prism:ViewModelLocator.AutoWireViewModel="True"
@@ -47,6 +46,11 @@
                         Command="{Binding SaveCommand}"/>
             </StackPanel>
         </Grid>
+        <DataGrid Grid.Row="1" 
+                  ItemsSource="{Binding ManagedEmployees}">
+
+        </DataGrid>
+        <!--
         <sg:GcSpreadGrid Grid.Row="1" 
                          ItemsSource="{Binding ManagedEmployees}" 
                          AutoGenerateColumns="False"
@@ -129,6 +133,6 @@
                 </sg:Column>
             </sg:GcSpreadGrid.Columns>
         </sg:GcSpreadGrid>
-
+        -->
     </Grid>
 </UserControl>

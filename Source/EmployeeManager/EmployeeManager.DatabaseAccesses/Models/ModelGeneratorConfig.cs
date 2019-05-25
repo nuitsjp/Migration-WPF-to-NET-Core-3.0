@@ -6,7 +6,7 @@
 // 
 //     Connection String Name: `AdventureWorks2017`
 //     Provider:               `System.Data.SqlClient`
-//     Connection String:      `Data Source=localhost;Initial Catalog=AdventureWorks2017;Integrated Security=True;`
+//     Connection String:      `Data Source=localhost\MSSQLSERVER01;Initial Catalog=AdventureWorks2017;Integrated Security=True;`
 //     Include Views:          `True`
 
 namespace AdventureWorks.EmployeeManager.DatabaseAccesses
@@ -151,7 +151,6 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
         public virtual int EmailPromotion { get; set; }
         public virtual string AdditionalContactInfo { get; set; }
         public virtual string Demographics { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public virtual Guid rowguid { get; set; }
         public virtual DateTime ModifiedDate { get; set; }
     }
@@ -968,28 +967,6 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
     }
 
     /// <summary>
-    /// A class which represents the Gender table.
-    /// </summary>
-    [Table("Gender", Schema = "HumanResources")]
-    public partial class Gender
-    {
-        [Key]
-        public virtual string Code { get; set; }
-        public virtual string Name { get; set; }
-    }
-
-    /// <summary>
-    /// A class which represents the MaritalStatus table.
-    /// </summary>
-    [Table("MaritalStatus", Schema = "HumanResources")]
-    public partial class MaritalStatu
-    {
-        [Key]
-        public virtual string Code { get; set; }
-        public virtual string Name { get; set; }
-    }
-
-    /// <summary>
     /// A class which represents the Address table.
     /// </summary>
     [Table("Address", Schema = "Person")]
@@ -1197,40 +1174,6 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
     }
 
     /// <summary>
-    /// A class which represents the ProductOverview view.
-    /// </summary>
-    [Table("ProductOverview", Schema = "Production")]
-    public partial class ProductOverview
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public virtual int ProductID { get; set; }
-        public virtual string Name { get; set; }
-        public virtual string ProductNumber { get; set; }
-        public virtual bool MakeFlag { get; set; }
-        public virtual bool FinishedGoodsFlag { get; set; }
-        public virtual string Color { get; set; }
-        public virtual short SafetyStockLevel { get; set; }
-        public virtual short ReorderPoint { get; set; }
-        public virtual decimal StandardCost { get; set; }
-        public virtual decimal ListPrice { get; set; }
-        public virtual string Size { get; set; }
-        public virtual string SizeUnitMeasureCode { get; set; }
-        public virtual string WeightUnitMeasureCode { get; set; }
-        public virtual decimal? Weight { get; set; }
-        public virtual int DaysToManufacture { get; set; }
-        public virtual string ProductLine { get; set; }
-        public virtual string Class { get; set; }
-        public virtual string Style { get; set; }
-        public virtual int? ProductSubcategoryID { get; set; }
-        public virtual int? ProductModelID { get; set; }
-        public virtual DateTime SellStartDate { get; set; }
-        public virtual DateTime? SellEndDate { get; set; }
-        public virtual DateTime? DiscontinuedDate { get; set; }
-        public virtual Guid rowguid { get; set; }
-        public virtual DateTime ModifiedDate { get; set; }
-    }
-
-    /// <summary>
     /// A class which represents the ProductReview table.
     /// </summary>
     [Table("ProductReview", Schema = "Production")]
@@ -1257,7 +1200,6 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public virtual int BusinessEntityID { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public virtual Guid rowguid { get; set; }
         public virtual DateTime ModifiedDate { get; set; }
     }
@@ -1309,28 +1251,6 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
         public virtual int AddressTypeID { get; set; }
         public virtual Guid rowguid { get; set; }
         public virtual DateTime ModifiedDate { get; set; }
-    }
-
-    /// <summary>
-    /// A class which represents the ManagedEmployee view.
-    /// </summary>
-    [Table("ManagedEmployee", Schema = "HumanResources")]
-    public partial class ManagedEmployee
-    {
-        public virtual int BusinessEntityID { get; set; }
-        public virtual string FirstName { get; set; }
-        public virtual string LastName { get; set; }
-        public virtual string NationalIDNumber { get; set; }
-        public virtual string LoginID { get; set; }
-        public virtual string JobTitle { get; set; }
-        public virtual DateTime BirthDate { get; set; }
-        public virtual string MaritalStatus { get; set; }
-        public virtual string Gender { get; set; }
-        public virtual DateTime HireDate { get; set; }
-        public virtual bool SalariedFlag { get; set; }
-        public virtual short VacationHours { get; set; }
-        public virtual short SickLeaveHours { get; set; }
-        public virtual bool CurrentFlag { get; set; }
     }
 
     /// <summary>
@@ -1570,6 +1490,26 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
     }
 
     /// <summary>
+    /// A class which represents the SalesOrder view.
+    /// </summary>
+    [Table("SalesOrder", Schema = "Invoice")]
+    public partial class SalesOrder
+    {
+        public virtual int SalesOrderId { get; set; }
+        public virtual int CustomerId { get; set; }
+        public virtual int BillToAddressId { get; set; }
+        public virtual DateTime OrderDate { get; set; }
+        public virtual string StoreName { get; set; }
+        public virtual string FirstName { get; set; }
+        public virtual string LastName { get; set; }
+        public virtual string AddressLine1 { get; set; }
+        public virtual string AddressLine2 { get; set; }
+        public virtual string City { get; set; }
+        public virtual string State { get; set; }
+        public virtual string PostalCode { get; set; }
+    }
+
+    /// <summary>
     /// A class which represents the CurrencyRate table.
     /// </summary>
     [Table("CurrencyRate", Schema = "Sales")]
@@ -1584,6 +1524,21 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
         public virtual decimal AverageRate { get; set; }
         public virtual decimal EndOfDayRate { get; set; }
         public virtual DateTime ModifiedDate { get; set; }
+    }
+
+    /// <summary>
+    /// A class which represents the SalesOrderDetail view.
+    /// </summary>
+    [Table("SalesOrderDetail", Schema = "Invoice")]
+    public partial class SalesOrderDetail
+    {
+        [Key]
+        public virtual int SalesOrderId { get; set; }
+        [Key]
+        public virtual int SalesOrderDetailId { get; set; }
+        public virtual short OrderQuantity { get; set; }
+        public virtual decimal UnitPrice { get; set; }
+        public virtual string ProductName { get; set; }
     }
 
     /// <summary>
@@ -1646,25 +1601,25 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
     /// <summary>
     /// A class which represents the SalesOrderDetail table.
     /// </summary>
-    [Table("SalesOrderDetail", Schema = "Sales")]
-    public partial class SalesOrderDetail
-    {
-        [Key]
-        public virtual int SalesOrderID { get; set; }
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public virtual int SalesOrderDetailID { get; set; }
-        public virtual string CarrierTrackingNumber { get; set; }
-        public virtual short OrderQty { get; set; }
-        public virtual int ProductID { get; set; }
-        public virtual int SpecialOfferID { get; set; }
-        public virtual decimal UnitPrice { get; set; }
-        public virtual decimal UnitPriceDiscount { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public virtual decimal LineTotal { get; set; }
-        public virtual Guid rowguid { get; set; }
-        public virtual DateTime ModifiedDate { get; set; }
-    }
+    //[Table("SalesOrderDetail", Schema = "Sales")]
+    //public partial class SalesOrderDetail
+    //{
+    //    [Key]
+    //    public virtual int SalesOrderID { get; set; }
+    //    [Key]
+    //    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    //    public virtual int SalesOrderDetailID { get; set; }
+    //    public virtual string CarrierTrackingNumber { get; set; }
+    //    public virtual short OrderQty { get; set; }
+    //    public virtual int ProductID { get; set; }
+    //    public virtual int SpecialOfferID { get; set; }
+    //    public virtual decimal UnitPrice { get; set; }
+    //    public virtual decimal UnitPriceDiscount { get; set; }
+    //    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    //    public virtual decimal LineTotal { get; set; }
+    //    public virtual Guid rowguid { get; set; }
+    //    public virtual DateTime ModifiedDate { get; set; }
+    //}
 
     /// <summary>
     /// A class which represents the EmailAddress table.
@@ -1702,9 +1657,41 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
         public virtual short VacationHours { get; set; }
         public virtual short SickLeaveHours { get; set; }
         public virtual bool CurrentFlag { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public virtual Guid rowguid { get; set; }
         public virtual DateTime ModifiedDate { get; set; }
+    }
+
+    /// <summary>
+    /// A class which represents the ManagedEmployee view.
+    /// </summary>
+    [Table("ManagedEmployee", Schema = "HumanResources")]
+    public partial class ManagedEmployee
+    {
+        public virtual int BusinessEntityID { get; set; }
+        public virtual string FirstName { get; set; }
+        public virtual string LastName { get; set; }
+        public virtual string NationalIDNumber { get; set; }
+        public virtual string LoginID { get; set; }
+        public virtual string JobTitle { get; set; }
+        public virtual DateTime BirthDate { get; set; }
+        public virtual string MaritalStatus { get; set; }
+        public virtual string Gender { get; set; }
+        public virtual DateTime HireDate { get; set; }
+        public virtual bool SalariedFlag { get; set; }
+        public virtual short VacationHours { get; set; }
+        public virtual short SickLeaveHours { get; set; }
+        public virtual bool CurrentFlag { get; set; }
+    }
+
+    /// <summary>
+    /// A class which represents the Gender table.
+    /// </summary>
+    [Table("Gender", Schema = "HumanResources")]
+    public partial class Gender
+    {
+        [Key]
+        public virtual string Code { get; set; }
+        public virtual string Name { get; set; }
     }
 
     /// <summary>
@@ -1743,6 +1730,17 @@ namespace AdventureWorks.EmployeeManager.DatabaseAccesses
         public virtual string Comment { get; set; }
         public virtual Guid rowguid { get; set; }
         public virtual DateTime ModifiedDate { get; set; }
+    }
+
+    /// <summary>
+    /// A class which represents the MaritalStatus table.
+    /// </summary>
+    [Table("MaritalStatus", Schema = "HumanResources")]
+    public partial class MaritalStatu
+    {
+        [Key]
+        public virtual string Code { get; set; }
+        public virtual string Name { get; set; }
     }
 
     /// <summary>
