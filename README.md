@@ -217,7 +217,7 @@ Uninstall-Package System.Management
 
 これで「EmployeeManager.Presentationプロジェクトは」.NET Core 3.0へ移行することができました。
 
-# WPFへの移行が比較的容易な本誌素敵な理由
+# WPFへの移行が比較的容易な本質的な理由
 
 さて、すでにこの段階でいくつか疑問が浮かんでいる方も多いかと思います。
 
