@@ -50,7 +50,7 @@
 
 ![](Images/ss05-0168.png)
 
-移行する中で、WPFアプリケーションの.NET Coreへの移行の「感覚」を理解してもらうことを字目的としています。
+移行する中で、WPFアプリケーションの.NET Coreへの移行の「感覚」を理解してもらうことを目的としています。
 
 # ハンズオン実施環境
 
@@ -77,7 +77,7 @@
 * P/Invokeを介したWin32 APIへの依存
 * System.Drawing.Bitmapの利用（WindowsのGDI+への依存）
 
-特にした二つはクロスプラットフォーム環境としては不安を感じる要素だと思います。
+特に下二つはクロスプラットフォーム環境としては不安を感じる要素だと思います。
 
 # 移行開始
 
@@ -90,6 +90,8 @@
 1. .csprojをSDKスタイルに変更
 2. プロジェクト参照の再適用
 3. NuGetパッケージの再インストール
+4. AssemblyInfo.csの削除
+5. NuGetパッケージの追加インストール
 
 ### .csprojをSDKスタイルに変更
 
@@ -109,12 +111,16 @@
 </Project>
 ```
 
+### プロジェクト参照の再適用
+
 以下のプロジェクト参照を設定し直します。
 
 * EmployeeManager
 * EmployeeManager.DatabaseAccesses
 * EmployeeManager.Services
 * EmployeeManager.Services.Imple
+
+### NuGetパッケージの再インストール
 
 NuGetパッケージをインストールし直します。
 
@@ -128,17 +134,27 @@ Install-Package Microsoft.Xaml.Behaviors.Wpf -ProjectName EmployeeManager.Presen
 Install-Package MahApps.Metro -ProjectName EmployeeManager.Presentation -Version 1.6.5
 ```
 
+### AssemblyInfo.csの削除
+
+さて、この状態でビルドすると次のようなエラーが複数でます。
+
 > System.Reflection.AssemblyCompanyAttribute' 属性が重複しています。
 
-EmployeeManager.PresentationのPropertiesの下からAssemblyInfo.csを削除
+これはSDKスタイルの.csprojではAssenblyInfo.csに記述されていた内容は、.csprojの定義情報から自動生成されるように変わったことで、記述が重複してしまうためです。
 
-クリーン＆リビルドしても解消しない場合はVisual Studioの再起動。
+という訳で、EmployeeManager.PresentationのPropertiesの下からAssemblyInfo.csを削除してください。この時、クリーン＆リビルドしても解消しない場合はVisual Studioの再起動することで解消されます。
+
+### NuGetパッケージの追加インストール
+
+さてこの状態で再ビルドするとSystem.Data.SqlClientが存在しないことでエラーが発生します。
+
+.NET Coreでは特にMicrosoft製品に依存していて、デフォルトで参照設定されていたライブラリが外部に移動しています。それらのライブラリはNuGetに公開されていますので、そちらからインストールしましょう。
 
 ```cmd
 Install-Package System.Data.SqlClient -ProjectName EmployeeManager.Presentation -Version 4.6.1
 ```
 
-さて、これでビルドは通りました。では実行してみましょう。
+さて、これでビルドは通りました。では実行してみましょう。すると次のようなエラーが発生します。
 
 ```cmd
 例外がスローされました: 'System.IO.FileNotFoundException' (ControlzEx.dll の中)
@@ -146,19 +162,31 @@ Install-Package System.Data.SqlClient -ProjectName EmployeeManager.Presentation 
 Could not load file or assembly 'System.Management, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'. 指定されたファイルが見つかりません。
 ```
 
+MahApps.Metroから間接的に参照されているSystem.Managementが、System.Data.SqlClientと同様に.NET Coreから標準では参照できなくなっているためです。次のようにして追加インストールしましょう。
+
 ```cmd
 Install-Package System.Management -ProjectName EmployeeManager.Presentation -Version 4.5.0
 ```
 
+なお移行にあたって.NET Coreに存在しないパッケージについては、Windows 互換機能パックを利用することでも解決できます。
 
+* Windows 互換機能パックを利用する
+[https://docs.microsoft.com/ja-jp/dotnet/core/porting/windows-compat-pack:title]
+
+
+さぁこれで実行できるようになりました。コードの修正は一切なく.NET Coreで動作できることが理解できたかと思います。
+
+## サードパーティーライブラリを.NET Core対応バージョンへ移行する
+
+ところで先ほど発生したSystem.Managementが参照できない問題ですが、これはそれを間接的に参照していたMahApps.MetroのStable Release版が.NET Core 3.0に対応していないため発生します。
+
+そこでまだPreviewですが、MahApps.Metroを.NET Core 3.0に対応したバージョンにアップデートしましょう。
 
 ```cmd
 Install-Package MahApps.Metro -ProjectName EmployeeManager.Presentation -Version 2.0.0-alpha0316
 ```
 
-App.xamlを修正
-
-before
+このバージョンではリソースの設計に破壊的変更が入っているため、App.xamlを修正する必要があります。App.xamlを開き、以下のように記述されている箇所を修正します。
 
 ```xml
 <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
@@ -172,7 +200,7 @@ before
 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
 ```
 
-after
+ここを以下のように修正してください。
 
 ```xml
 <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
@@ -181,56 +209,46 @@ after
 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/themes/light.magenta.xaml" />
 ```
 
+あとは不要になったSystem.Managementパッケージをアンインストールしましょう。
 
-[f:id:nuitsjp:20190421162653j:plain]
+```cmd
+Uninstall-Package System.Management
+```
 
-さて、マイグレーション対象のアプリケーションは実際に弊社で開発している業務アプリでかれこれ8年くらい熟成された全体としてはそこそこ大きなアプリの一部です。
+これで「EmployeeManager.Presentationプロジェクトは」.NET Core 3.0へ移行することができました。
 
-アプリは（弊社的に）.NET Framework 4.5.2という最新のフレームワークで開発されており、比較的大きな.NET Framework製のサードパーティライブラリを利用しています。
+# WPFへの移行が比較的容易な本誌素敵な理由
 
-また、トラブりそうな要素として静的コード生成を利用したDLLの書き換えや、COM経由でのスキャナードライバの呼び出し、System.Drawing.Bitmapに代表されるようなWindowsに強く依存するコードが含まれています。
+さて、すでにこの段階でいくつか疑問が浮かんでいる方も多いかと思います。
 
-実際に移行デモをするのにそこそこ良い題材だと思います。
+そうです。特に次の点に疑問を持った方が多いのではないでしょうか？
 
-[f:id:nuitsjp:20190421162909j:plain]
+* MahApps.Metroが.NET Core非対応版でも動作していた
+* EmployeeManager.Presentation以外のプロジェクトは.NET Frameworkのまま
 
-というわけで、移行における一つ目のポイントです。
+.NET Coreはクロスプラットフォーム開発プラットフォームなのに、なぜ.NET Frameworkのモジュールが動作していたのでしょうか？
 
-.NET Frameworkでは標準で参照できたパッケージが.NET Coreでは標準では参照できない可能性があります。次のいずれかで、概ね解消できます。
-
-* NuGetから同名のパッケージを適用する
-* Windows 互換機能パックを利用する
-[https://docs.microsoft.com/ja-jp/dotnet/core/porting/windows-compat-pack:title]
-
-とはいえ、無いものもあります。
-
-[f:id:nuitsjp:20190421163241j:plain]
-
-.NET Coreには.NET Frameworkにはあったけど、正式に対応しないことが明言されているものが存在します。AppDomainや.NET Remotingなどで、詳細はこちらのリンクに記載があります。
-
-* [https://docs.microsoft.com/ja-jp/dotnet/core/porting/net-framework-tech-unavailable:title]
-
-このため、そういったものを利用している場合、自分のコードであれば.NET Portability Analyzerでチェックして別の実現手段によって解決する必要があります。
-
-またサードパーティライブラリの場合は.NET Coreもしくは.NET Standard対応のライブラリに移行していただく必要があります。
-
-ところで.NET Core可したプロジェクトから.NET Frameworkのプロジェクトへ参照が設定できて、ビルドもできてしまいます。クロスプラットフォームプロジェクトから、プラットフォーム依存のコードが参照できては拙いのでは？という疑問が当然生まれますよね？
+この点の疑問が理解できると、WPFという巨大なフレームワークが比較的安全に.NET Coreに移行できた理由が理解できます。
 
 このことは、私的にはXamarinの例をとって考えると非常にわかりやすいです。
 
-[f:id:nuitsjp:20190421163606j:plain]
-
 Xamarinでは共通コードは.NET Standardで記載します。
+
+![](Images/Images-01.png)
 
 .NET Standardで実装された共通のUIライブラリは、.NET Standardで実装されたクラスライブラリを利用しているとします。そのクラスの中でファイルIOを実装していたとしましょう。
 
 そうした場合、実際にはどのように動作するでしょうか？例えばAndroidの場合は左のようになります。
+
+![](Images/Images-02.png)
 
 ビルド時には.NET StandardのFileクラスを参照してビルドしていましたが、実行時にはMono.Androidで実装されたFileクラスが呼び出されます。そしてその中では、Androidのネイティブであるjava.io.Fileが呼び出されることによってファイル操作が実現されます。
 
 iOSであっても同様です。
 
 これは一般的に「Bait and Switch」と呼ばれる手法です。
+
+![](Images/Images-03.png)
 
 元々は「おとり商法」の意味で、例えば不動産屋なんかで、ネットで有料広告を売っておいて店頭に言ったら
 
@@ -240,13 +258,13 @@ iOSであっても同様です。
 
 .NET StandardのFileというBaitで釣っておいて、ビルドしておいて、実行時は各プラットフォームにSwitchするわけです。この場合別に鞭打たれていませんけどね。
 
-[f:id:nuitsjp:20190421163756j:plain]
-
 では.NET FrrameworkとCoreに置き換えて考えてみましょう。
+
+![](Images/Images-04.png)
 
 最初、すべてのモジュールは.NET Frameworkでビルドされていました。
 
-そしてアプリケーションを.NET Coreに置き換えました。しかしライブラリは依然Frameworkのままです。したがってライブラリが参照するのもFrameworkのFileクラスです。
+そしてMy Applicationを.NET Coreに置き換えました。しかしライブラリは依然Frameworkのままです。したがってライブラリが参照するのもFrameworkのFileクラスです。
 
 これを実行するランタイムはWindows用のCoreランタイムです。従って実行時のFileクラスは.NET CoreのWindows用のランタイムになります。
 
@@ -254,51 +272,50 @@ iOSであっても同様です。
 
 つまりここでBait and Switchが発生しているわけです。
 
-[f:id:nuitsjp:20190421164006j:plain]
-
 この状況で動作する特に重要なポイントは次の二つです。
 
 * ひとつは、中間言語は共通仕様であってFrameworkでもCoreでも変わりない事
 * そして別にWPFとは関係なく、もともと.NETからネイティブのAPIを呼び出す仕組みは.NET Frameworkにも.NET Coreにも備わっているからになります。
 
-従って、条件を満たせば実のところ.NET Framework向けにビルドされたモジュールは.NET Coreでも動作します。そしてこの前提があったからこそ、.NET CoreにWPFやWinFormsが比較的簡単に、そして安全に移行できているのだと思います。多分。
+従って、条件を満たせば実のところ.NET Framework向けにビルドされたモジュールは.NET Coreでも動作します。
 
-[f:id:nuitsjp:20190421164038j:plain]
+実際にPresentation以外のプロジェクトは.NET Frameworkのままで動作していますし、MahApps.Metroも不足パッケージを追加することで動作することができました。
 
-ただもちろん注意は必要です。この二つのFileクラスは完全に別物になります。
+そしてこの前提があったからこそ、.NET CoreにWPFやWinFormsが比較的簡単に、そして安全に移行できているのだと思います。多分。
+
+ただもちろん注意は必要です。.NET Frameworkと.NET Coreの二つのFileクラスは完全に別物になります。
 
 例えばライブラリから利用しているメソッドが、Frameworkには存在しても、Coreには存在しないということは起こりえます。
 
 この場合、ビルドは通って実行時エラーになります。
 
-[f:id:nuitsjp:20190421164132j:plain]
+このためFrameworkでビルドされたモジュールも、Core環境で動作する可能性がありますが、直接・間接的に.NET Coreでサポートされていない物に依存している可能性があります。
 
-というわけで三つ目のポイントです。
-
-まずFrameworkでビルドされたモジュールも、Core環境で動作する可能性があります。
-
-ただし、直接・間接的に.NET Coreでサポートされていない物に依存している可能性があります。
-
-既にFrameworkビルド済みのサードパーティライブラリが、Coreで動作するかどうかは、.NET Portability Analyzerでは分からないと思います。多分。また一時的に動作しても、内部分岐次第では、非常に低い確率で突如実行時エラーになるということがあり得ます。
+既にFrameworkビルド済みのサードパーティライブラリが、Coreで動作するかどうかは、.NET Portability Analyzerでは分かりません。また一時的に動作しても、内部分岐次第では、非常に低い確率で突如実行時エラーになるということがあり得ます。
 
 このため、特別な理由があってFrameworkのライブラリを利用せざるを得ず、かつ利用しても問題がないという何らかの確証がないかぎり、基本的には.NET CoreやStandard対応のライブラリを利用したほうが安全だと思います。
 
-[f:id:nuitsjp:20190421164253j:plain]
-
-というわけで、一通り動作が確認できました。
-
-今回、上のような技術要素について、不安視していましたが実際には問題なく動作してしまいました。個人的には静的コード生成はFramework 4.5.2を対象にしていたことから、エラーになるつもりだったのですが、思った以上に素直に移行できてしまい驚いています。
-
-[f:id:nuitsjp:20190421164410j:plain]
+# まとめ
 
 さて、最後にまとめましょう。
 
-[f:id:nuitsjp:20190421164432j:plain]
-
-* .NET CoreがWPFをサポートすることは、少なくとも私にとっては非常に魅力的です。
+* .NET CoreがWPFをサポートすることは非常に魅力的です。
 * また移行自体は、もちろんなんでも移行できるわけではありませんが、条件が整えば比較的簡単に移行できそうです。
-特にASP.NETからASP.NET MVCへのツール（ありましたよね？）での移行などとは違い、フレームワーク自体は基本的に変更がないため、ツールが信用できるかどうかを心配したり、ツールで移行した後の構成管理で悩む必要がないのが大きなメリットです。
+* 特にフレームワーク自体は基本的に変更がないため、移行の際に気になる移行ツールの信頼性や、ツールで移行した後の構成管理で悩む必要がないのが大きなメリットです。
 * 移行する際には、すでに公式のドキュメントが用意されていますので、まずはそちらを確認しましょう。
 * 公式ドキュメントにも、Frameworkのライブラリが利用できる旨記述がありますがやはり危険なケースもありますから、可能であればCoreもしくはStandardに統一したほうがよいのではと私は考えています。
 
-以上です。なにか疑問があれば気軽に[Twitter](https://twitter.com/nuits_jp)にでもお問い合わせください。
+また.NET Coreには.NET Frameworkにはあったけど、正式に対応しないことが明言されているものが存在します。AppDomainや.NET Remotingなどで、詳細はこちらのリンクに記載があります。
+
+* [https://docs.microsoft.com/ja-jp/dotnet/core/porting/net-framework-tech-unavailable:title]
+
+ここに記載されている以外でも、例えばWCFは.NET Coreへ移行されないことが明言されていますし、Entity FrameworkもEntity Framework Coreが存在はしますが、完全な互換性はありません。
+
+このため、そういったものを利用している場合、自分のコードであれば.NET Portability Analyzerでチェックして別の実現手段によって解決する必要があります。
+
+またサードパーティライブラリの場合は.NET Coreもしくは.NET Standard対応のライブラリに移行していただく必要があります。
+
+以上です。
+
+なにか疑問があれば気軽に[Twitter](https://twitter.com/nuits_jp)にでもお問い合わせください。
+
