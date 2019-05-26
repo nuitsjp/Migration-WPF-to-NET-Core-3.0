@@ -1,0 +1,35 @@
+﻿<mah:MetroWindow  x:Class="AdventureWorks.EmployeeManager.Presentation.Views.MainWindow"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                  xmlns:viewModels="clr-namespace:AdventureWorks.EmployeeManager.Presentation.ViewModels"
+                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                  GlowBrush="{DynamicResource AccentColorBrush}"
+                  Title="Adventure Works" Height="768" Width="1024"
+                  DataContext="{Binding Source={x:Static viewModels:ViewModelLocator.MainWindowViewModel}}">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding InitializeCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="{StaticResource ControlBackgroundBrush}" Margin="0,-1,0,1">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{DynamicResource AccentedSquareButtonStyle}" Width="100" Margin="10, 0"
+                        Content="編集"
+                        Command="{Binding EditCommand}"/>
+                <Button Style="{DynamicResource AccentedSquareButtonStyle}" Width="100" Margin="10, 0"
+                        Content="保存"
+                        Command="{Binding SaveCommand}"/>
+            </StackPanel>
+        </Grid>
+        <DataGrid Grid.Row="1" 
+                  ItemsSource="{Binding ManagedEmployees}"
+                  IsReadOnly="{Binding IsReadOnly}"/>
+    </Grid>
+</mah:MetroWindow>
+
