@@ -307,7 +307,7 @@ iOSであっても同様です。
 
 また.NET Coreには.NET Frameworkにはあったけど、正式に対応しないことが明言されているものが存在します。AppDomainや.NET Remotingなどで、詳細はこちらのリンクに記載があります。
 
-* [https://docs.microsoft.com/ja-jp/dotnet/core/porting/net-framework-tech-unavailable:title]
+* [.NET Core で使用できない .NET Framework テクノロジ](https://docs.microsoft.com/ja-jp/dotnet/core/porting/net-framework-tech-unavailable)
 
 ここに記載されている以外でも、例えばWCFは.NET Coreへ移行されないことが明言されていますし、Entity FrameworkもEntity Framework Coreが存在はしますが、完全な互換性はありません。
 
