@@ -46,7 +46,7 @@
 
 # ハンズオン概要
 
-次のようなグリッドによるデータの表示・編集を行う.NET Frameworkで実装されたアプリケーションを、.NET Core 3.0に移行します。
+次のようなグリッドによるデータの表示・編集を行う.NET Frameworkで実装されたクライアントサーバー型WPFアプリケーションを、.NET Core 3.0に移行します。
 
 ![](Images/ss05-0168.png)
 
@@ -97,8 +97,89 @@
 
 まずはEmployeeManager.Presentation.csprojを開いてい、つぎのように修正してください。
 
+```xml
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+</Project>
+```
+
+以下のプロジェクト参照を設定し直します。
+
+* EmployeeManager
+* EmployeeManager.DatabaseAccesses
+* EmployeeManager.Services
+* EmployeeManager.Services.Imple
+
+NuGetパッケージをインストールし直します。
+
+```cmd
+Install-Package AutoMapper -ProjectName EmployeeManager.Presentation -Version 8.1.0
+Install-Package SimpleInjector -ProjectName EmployeeManager.Presentation -Version 4.6.0
+Install-Package RedSheeps.SimpleInjector.DynamicProxy -ProjectName EmployeeManager.Presentation -Version 1.0.0
+Install-Package ReactiveProperty -ProjectName EmployeeManager.Presentation -Version 5.5.1
+Install-Package PropertyChanged.Fody -ProjectName EmployeeManager.Presentation -Version 3.0.1
+Install-Package Microsoft.Xaml.Behaviors.Wpf -ProjectName EmployeeManager.Presentation -Version 1.0.1
+Install-Package MahApps.Metro -ProjectName EmployeeManager.Presentation -Version 1.6.5
+```
+
+> System.Reflection.AssemblyCompanyAttribute' 属性が重複しています。
+
+EmployeeManager.PresentationのPropertiesの下からAssemblyInfo.csを削除
+
+クリーン＆リビルドしても解消しない場合はVisual Studioの再起動。
+
+```cmd
+Install-Package System.Data.SqlClient -ProjectName EmployeeManager.Presentation -Version 4.6.1
+```
+
+さて、これでビルドは通りました。では実行してみましょう。
+
+```cmd
+例外がスローされました: 'System.IO.FileNotFoundException' (ControlzEx.dll の中)
+型 'System.IO.FileNotFoundException' の例外が ControlzEx.dll で発生しましたが、ユーザー コード内ではハンドルされませんでした
+Could not load file or assembly 'System.Management, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'. 指定されたファイルが見つかりません。
+```
+
+```cmd
+Install-Package System.Management -ProjectName EmployeeManager.Presentation -Version 4.5.0
+```
 
 
+
+```cmd
+Install-Package MahApps.Metro -ProjectName EmployeeManager.Presentation -Version 2.0.0-alpha0316
+```
+
+App.xamlを修正
+
+before
+
+```xml
+<!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+<!-- Accent and AppTheme setting -->
+<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Magenta.xaml" />
+<!-- theme resource -->
+<!-- change "BaseLight" to the theme you want -->
+<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+```
+
+after
+
+```xml
+<!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/themes/light.magenta.xaml" />
+```
 
 
 [f:id:nuitsjp:20190421162653j:plain]
